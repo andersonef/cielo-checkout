@@ -24,6 +24,7 @@ class Sample1
     {
         $checkout = new CieloCheckout('00000000-0000-0000-0000-000000000000');
 
+
         //Setting up the customer:
         $checkout
             ->newOrder()
