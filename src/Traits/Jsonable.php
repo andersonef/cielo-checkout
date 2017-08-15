@@ -21,12 +21,13 @@ trait Jsonable
 
         foreach($properties as $property => $value) {
             if(is_array($instance->$property)) {
+                if(empty($plainObject->$property)) $plainObject->$property = [];
                 foreach($instance->$property as $subProperty => $subValue) {
                     if($subValue instanceof JsonableContract) {
-                        $plainObject->$property[] = $subValue->toPlainObject();
+                        array_push($plainObject->$property,  $subValue->toPlainObject());
                         continue;
                     }
-                    $plainObject->$property[] = $subValue;
+                    array_push($plainObject->$property, $subValue);
                 }
                 continue;
             }

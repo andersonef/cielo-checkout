@@ -63,15 +63,16 @@ class CieloCheckout
                 'Content-Type'  => $this->getOrder()->getContentType(),
                 'MerchantId'    => $this->merchantId
             ],
-            'body'      => $this->getOrder()->toJson()
+            'body'      => $this->getOrder()->toJson(),
+            'verify'    => false
         ]);
         $objResponse = json_decode($response->getBody()->getContents());
         if(!empty($objResponse->message)) throw new CieloCheckoutException($objResponse->message);
         $this->getOrder()->setSettings(
             (new Settings())
-            ->setProfile($objResponse->settings->profile)
-            ->setVersion($objResponse->settings->version)
-            ->setCheckoutUrl($objResponse->settings->checkoutUrl)
+                ->setProfile($objResponse->settings->profile)
+                ->setVersion($objResponse->settings->version)
+                ->setCheckoutUrl($objResponse->settings->checkoutUrl)
         );
         return $this->getOrder()->getSettings()->getCheckoutUrl();
     }

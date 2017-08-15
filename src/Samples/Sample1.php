@@ -9,7 +9,6 @@
 namespace Girolando\CieloCheckout\Samples;
 
 
-use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Services\CieloCheckout;
 use Girolando\CieloCheckout\Entities\Cart;
 use Girolando\CieloCheckout\Entities\Customer;
@@ -22,8 +21,7 @@ class Sample1
 {
     public static function main()
     {
-        $checkout = new CieloCheckout('00000000-0000-0000-0000-000000000000');
-
+        $checkout = new CieloCheckout('edfd4486-6257-4152-8442-7f4786212c3d');
 
         //Setting up the customer:
         $checkout
