@@ -1,0 +1,22 @@
+{
+    "name": "girolando/cielo-checkout",
+    "version": "1.0.0",
+    "minimum-stability": "dev",
+    "description": "Use this package to generate the checkout url such as store it in database PureGH (internal database of this company)",
+    "type": "php",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anderson Silva",
+            "email": "anderson.nuneseth@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Girolando\\CieloCheckout\\" : "src/"
+        }
+    }
+}
