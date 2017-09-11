@@ -32,6 +32,23 @@ class Payment implements JsonableContract
     protected $RecurrentPayment;
 
 
+    /** Número máximo de parcelas
+     * @var integer
+     */
+    protected $MaxNumberOfInstallments;
+
+
+    /** Desconto para a primeira parcela. IMPORTANTE:  O valor informado para o campo `FirstInstallmentDiscount` vai ser sempre o valor de uma porcentagem de desconto. Exemplo: 5 equivale a 5% de desconto.
+     * @var integer
+     */
+    protected $FirstInstallmentDiscount;
+
+
+    /** Número máximo de parcelas. (Não pode ser maior que o valor máximo configurado no backoffice)
+     * @var integer
+     */
+
+
     public function getBoletoDiscount() {
         return $this->BoletoDiscount;
     }
@@ -53,6 +70,22 @@ class Payment implements JsonableContract
     }
     public function setRecurrentPayment($value) {
         $this->RecurrentPayment = $value;
+        return $this;
+    }
+
+    public function getMaxNumberOfInstallments() {
+        return $this->MaxNumberOfInstallments;
+    }
+    public function setMaxNumberOfInstallments($value) {
+        $this->MaxNumberOfInstallments = $value;
+        return $this;
+    }
+
+    public function getFirstInstallmentDiscount() {
+        return $this->FirstInstallmentDiscount;
+    }
+    public function setFirstInstallmentDiscount($value) {
+        $this->FirstInstallmentDiscount = $value;
         return $this;
     }
 

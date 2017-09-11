@@ -9,6 +9,8 @@
 namespace Girolando\CieloCheckout\Services;
 
 
+use Girolando\CieloCheckout\Entities\Discount;
+use Girolando\CieloCheckout\Entities\InstallmentRange;
 use Girolando\CieloCheckout\Entities\Order;
 use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Exceptions\CieloCheckoutException;
@@ -22,6 +24,9 @@ class CieloCheckout
     private $merchantId;
 
     protected $Order;
+
+    protected $installmentRange = [];
+
 
     public function __construct($merchantId)
     {
@@ -56,6 +61,24 @@ class CieloCheckout
      */
     public function processCheckoutUrl()
     {
+        //setting up the MaxInstallments:
+        if(!$this->getOrder()->getPayment()->getMaxNumberOfInstallments()) {
+            //I'll only do it if this property is not setted up.
+            $discountValue = $this->getOrder()->getCart()->getDiscount()->getValue();
+            $discountType = $this->getOrder()->getCart()->getDiscount()->getType();
+            $fullValue = 0;
+            foreach($this->getOrder()->getCart()->getItems() as $item) $fullValue += $item->getUnitPrice() * $item->getUnitPrice();
+            $finalValue = $fullValue - $discountValue;
+            if($discountType == Discount::DISCOUNTTYPE_PERCENT) {
+                $finalValue = $fullValue - ($fullValue * ($discountValue / 100));
+            }
+            foreach($this->getInstallments() as $range) {
+                if($range->isBetween($finalValue)) {
+                    $this->getOrder()->getPayment()->setMaxNumberOfInstallments($range->getMaxInstallments());
+                }
+            }
+        }
+
         $client = new Client();
         $response = $client->post(self::CIELO_ORDER_ENDPOINTURL, [
             'headers'   => [
@@ -77,5 +100,24 @@ class CieloCheckout
         return $this->getOrder()->getSettings()->getCheckoutUrl();
     }
 
+
+    /**
+     * @param array $range
+     * @return $this
+     */
+    public function setupInstallments(array $range)
+    {
+        foreach($range as $obj) if(!($obj instanceof InstallmentRange)) throw new \InvalidArgumentException('This method requires an InstallmentRange array');
+        $this->installmentRange = $range;
+        return $this;
+    }
+
+    /**
+     * @return array InstallmentRange
+     */
+    public function getInstallments()
+    {
+        return $this->installmentRange;
+    }
 
 }

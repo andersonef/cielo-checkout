@@ -16,12 +16,19 @@ use Girolando\CieloCheckout\Entities\Item;
 use Girolando\CieloCheckout\Entities\Options;
 use Girolando\CieloCheckout\Entities\Payment;
 use Girolando\CieloCheckout\Entities\Shipping;
+use Girolando\CieloCheckout\Entities\InstallmentRange;
 
 class Sample1
 {
     public static function main()
     {
         $checkout = new CieloCheckout('edfd4486-6257-4152-8442-7f4786212c3d');
+
+        $checkout->setupInstallments([
+            (new InstallmentRange())->setBetween(0, 200)->setMaxInstallments(2),
+            (new InstallmentRange())->setBetween(201, 600)->setMaxInstallments(3),
+            (new InstallmentRange())->setBetween(601, InstallmentRange::MAX_VALUE)->setMaxInstallments(5),
+        ]);
 
         //Setting up the customer:
         $checkout
@@ -41,6 +48,7 @@ class Sample1
             ->setPayment((new Payment())
                 ->setBoletoDiscount(0)
                 ->setDebitDiscount(0)
+                ->setMaxNumberOfInstallments(5)     //It will override the default value from installments table.
             )
 
             ->setOptions((new Options())
