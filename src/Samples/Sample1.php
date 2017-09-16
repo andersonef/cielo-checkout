@@ -9,6 +9,7 @@
 namespace Girolando\CieloCheckout\Samples;
 
 
+use Girolando\CieloCheckout\Entities\Discount;
 use Girolando\CieloCheckout\Services\CieloCheckout;
 use Girolando\CieloCheckout\Entities\Cart;
 use Girolando\CieloCheckout\Entities\Customer;
@@ -33,6 +34,7 @@ class Sample1
         //Setting up the customer:
         $checkout
             ->newOrder()
+
 
             ->setCustomer((new Customer())
                 ->setEmail('anderson.nuneseth@gmail.com')
@@ -61,6 +63,7 @@ class Sample1
 
             ->setCart(
                 (new Cart())
+                ->insertDiscount(Discount::DISCOUNTTYPE_AMOUNT, 20)
                 ->addItem(
                     (new Item())
                     ->setType(Item::TYPE_SERVICE)
