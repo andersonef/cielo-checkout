@@ -67,7 +67,7 @@ class CieloCheckout
             $discountValue = $this->getOrder()->getCart()->getDiscount()->getValue();
             $discountType = $this->getOrder()->getCart()->getDiscount()->getType();
             $fullValue = 0;
-            foreach($this->getOrder()->getCart()->getItems() as $item) $fullValue += ($item->getUnitPrice() / 100) * $item->getQuantity();
+            foreach($this->getOrder()->getCart()->getItems() as $item) $fullValue += $item->getUnitPrice() * $item->getQuantity();
             $finalValue = $fullValue - $discountValue;
             if($discountType == Discount::DISCOUNTTYPE_PERCENT) {
                 $finalValue = $fullValue - ($fullValue * ($discountValue / 100));
