@@ -14,11 +14,15 @@ use Girolando\CieloCheckout\Entities\InstallmentRange;
 use Girolando\CieloCheckout\Entities\Order;
 use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Exceptions\CieloCheckoutException;
+use Girolando\CieloCheckout\Exceptions\InvalidGatewayException;
+use Girolando\CieloCheckout\Processors\CieloProcessor;
+use Girolando\CieloCheckout\Processors\PaypalProcessor;
 use GuzzleHttp\Client;
 
 class CieloCheckout
 {
-    const CIELO_ORDER_ENDPOINTURL = 'https://cieloecommerce.cielo.com.br/api/public/v1/orders';
+    const GATEWAY_CIELO             = 'cielo';
+    const GATEWAY_PAYPAL            = 'paypal';
 
 
     private $merchantId;
@@ -27,11 +31,24 @@ class CieloCheckout
 
     protected $installmentRange = [];
 
+    protected $currentGateway = self::GATEWAY_CIELO;
 
-    public function __construct($merchantId)
+
+    /**
+     * CieloCheckout constructor.
+     * Parametro depreciado e opcional. Se for utilizar cielo, informe a merchantId diretamente pelo processor, da seguinte forma:
+     * CieloProcessor::setMerchantId($merchantid);
+     *
+     * @param @deprecated null $merchantId
+     */
+    public function __construct($merchantId = null)
     {
         $this->merchantId = $merchantId;
+        if($merchantId)
+            CieloProcessor::setMerchantId($merchantId);
     }
+
+
 
 
     /** Creates a new order using the merchantId
@@ -61,43 +78,11 @@ class CieloCheckout
      */
     public function processCheckoutUrl()
     {
-        //setting up the MaxInstallments:
-        if(!$this->getOrder()->getPayment()->getMaxNumberOfInstallments()) {
-            //I'll only do it if this property is not setted up.
-            $discountValue = $this->getOrder()->getCart()->getDiscount()->getValue();
-            $discountType = $this->getOrder()->getCart()->getDiscount()->getType();
-            $fullValue = 0;
-            foreach($this->getOrder()->getCart()->getItems() as $item) $fullValue += $item->getUnitPrice() * $item->getQuantity();
-            $finalValue = $fullValue - $discountValue;
-            if($discountType == Discount::DISCOUNTTYPE_PERCENT) {
-                $finalValue = $fullValue - ($fullValue * ($discountValue / 100));
-            }
-            foreach($this->getInstallments() as $range) {
-                if($range->isBetween($finalValue)) {
-                    $this->getOrder()->getPayment()->setMaxNumberOfInstallments($range->getMaxInstallments());
-                }
-            }
+        switch($this->currentGateway) {
+            case self::GATEWAY_CIELO: return (new CieloProcessor($this))->execute();
+            case self::GATEWAY_PAYPAL: return (new PaypalProcessor($this))->execute();
         }
-
-        $client = new Client();
-        $response = $client->post(self::CIELO_ORDER_ENDPOINTURL, [
-            'headers'   => [
-                'Accept'        => $this->getOrder()->getContentType(),
-                'Content-Type'  => $this->getOrder()->getContentType(),
-                'MerchantId'    => $this->merchantId
-            ],
-            'body'      => $this->getOrder()->toJson(),
-            'verify'    => false
-        ]);
-        $objResponse = json_decode($response->getBody()->getContents());
-        if(!empty($objResponse->message)) throw new CieloCheckoutException($objResponse->message);
-        $this->getOrder()->setSettings(
-            (new Settings())
-                ->setProfile($objResponse->settings->profile)
-                ->setVersion($objResponse->settings->version)
-                ->setCheckoutUrl($objResponse->settings->checkoutUrl)
-        );
-        return $this->getOrder()->getSettings()->getCheckoutUrl();
+        throw new InvalidGatewayException();
     }
 
 
@@ -120,4 +105,21 @@ class CieloCheckout
         return $this->installmentRange;
     }
 
+    public function getMerchantId()
+    {
+        return $this->merchantId;
+    }
+
+
+
+    public function setCurrentGateway($gateway)
+    {
+        $this->currentGateway = $gateway;
+        return $this;
+    }
+
+    public function getCurrentGateway()
+    {
+        return $this->currentGateway;
+    }
 }

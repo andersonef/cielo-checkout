@@ -85,6 +85,9 @@ class Sample1
 
 
         //If you wanna save it in the database before generate the checkout url, the time is now.
+
+        $checkout->setCurrentGateway(CieloCheckout::GATEWAY_PAYPAL);
+
         $checkoutUrl = $checkout->processCheckoutUrl();
         die('url: ' . $checkoutUrl . ' - ' . $checkout->getOrder()->getSettings()->getCheckoutUrl());
 
