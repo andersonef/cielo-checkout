@@ -10,6 +10,8 @@ namespace Girolando\CieloCheckout\Samples;
 
 
 use Girolando\CieloCheckout\Entities\Discount;
+use Girolando\CieloCheckout\Processors\CieloProcessor;
+use Girolando\CieloCheckout\Processors\PaypalProcessor;
 use Girolando\CieloCheckout\Services\CieloCheckout;
 use Girolando\CieloCheckout\Entities\Cart;
 use Girolando\CieloCheckout\Entities\Customer;
@@ -86,6 +88,11 @@ class Sample1
 
         //If you wanna save it in the database before generate the checkout url, the time is now.
 
+        PaypalProcessor::setTestMode(true);
+        PaypalProcessor::setCancelUrl('http://url.com');
+        PaypalProcessor::setReturnUrl('http://returnurl');
+        PaypalProcessor::setClientId('clientid');
+        PaypalProcessor::setClientSecret('client secret');
         $checkout->setCurrentGateway(CieloCheckout::GATEWAY_PAYPAL);
 
         $checkoutUrl = $checkout->processCheckoutUrl();

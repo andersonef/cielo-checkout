@@ -110,6 +110,12 @@ class PaypalProcessor implements ProcessorContract
 
         try {
             $payment->create($apiContext);
+            $this->checkout->getOrder()->setSettings((new Settings())
+                ->setProfile('paypal')
+                ->setVersion('2.0.1')
+                ->setCheckoutUrl($payment->getApprovalLink())
+            );
+
             return $payment->getApprovalLink();
         } catch (\Exception $e) {
             throw new CieloCheckoutException($e->getMessage());
