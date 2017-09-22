@@ -11,6 +11,7 @@ namespace Girolando\CieloCheckout\Processors;
 
 use Girolando\CieloCheckout\Contracts\ProcessorContract;
 use Girolando\CieloCheckout\Entities\Discount;
+use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Exceptions\CieloCheckoutException;
 use Girolando\CieloCheckout\Services\CieloCheckout;
 use PayPal\Api\Item;
