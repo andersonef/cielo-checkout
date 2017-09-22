@@ -9,6 +9,7 @@
 namespace Girolando\CieloCheckout\Services;
 
 
+use Girolando\CieloCheckout\Contracts\ProcessorContract;
 use Girolando\CieloCheckout\Entities\Discount;
 use Girolando\CieloCheckout\Entities\InstallmentRange;
 use Girolando\CieloCheckout\Entities\Order;
@@ -21,17 +22,11 @@ use GuzzleHttp\Client;
 
 class CieloCheckout
 {
-    const GATEWAY_CIELO             = 'cielo';
-    const GATEWAY_PAYPAL            = 'paypal';
-
-
     private $merchantId;
 
     protected $Order;
 
     protected $installmentRange = [];
-
-    protected $currentGateway = self::GATEWAY_CIELO;
 
 
     /**
@@ -76,13 +71,9 @@ class CieloCheckout
     /**
      * Process the order and returns the checkoutUrl
      */
-    public function processCheckoutUrl()
+    public function processCheckoutUrl(ProcessorContract $processor)
     {
-        switch($this->currentGateway) {
-            case self::GATEWAY_CIELO: return (new CieloProcessor($this))->execute();
-            case self::GATEWAY_PAYPAL: return (new PaypalProcessor($this))->execute();
-        }
-        throw new InvalidGatewayException();
+        return $processor->withCheckout($this)->execute();
     }
 
 
@@ -110,16 +101,4 @@ class CieloCheckout
         return $this->merchantId;
     }
 
-
-
-    public function setCurrentGateway($gateway)
-    {
-        $this->currentGateway = $gateway;
-        return $this;
-    }
-
-    public function getCurrentGateway()
-    {
-        return $this->currentGateway;
-    }
 }

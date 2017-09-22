@@ -14,30 +14,26 @@ use Girolando\CieloCheckout\Entities\Discount;
 use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Exceptions\CieloCheckoutException;
 use Girolando\CieloCheckout\Services\CieloCheckout;
+use Girolando\CieloCheckout\Traits\Processable;
 use PayPal\Api\Item;
 use PayPal\Api\ItemList;
 
 class PaypalProcessor implements ProcessorContract
 {
-    protected static $returnUrl;
-    protected static $cancelUrl;
-    protected static $clientId = null;
-    protected static $clientSecret = null;
-    protected static $testMode = false;
+    use Processable;
 
-    protected $checkout;
-
-    public function __construct(CieloCheckout $checkout)
-    {
-        $this->checkout = $checkout;
-    }
+    protected $returnUrl;
+    protected $cancelUrl;
+    protected $clientId = null;
+    protected $clientSecret = null;
+    protected $testMode = false;
 
     public function execute()
     {
         $apiContext = new \PayPal\Rest\ApiContext(
-            new \PayPal\Auth\OAuthTokenCredential(self::$clientId, self::$clientSecret)
+            new \PayPal\Auth\OAuthTokenCredential($this->clientId, $this->clientSecret)
         );
-        if(self::$testMode) {
+        if($this->testMode) {
             $apiContext->setConfig([
                 'mode' => "sandbox",
             ]);
@@ -94,8 +90,8 @@ class PaypalProcessor implements ProcessorContract
 
         // links para redirecionamento
         $redirectUrls = new \PayPal\Api\RedirectUrls;
-        $redirectUrls->setReturnUrl(self::$returnUrl)
-            ->setCancelUrl(self::$cancelUrl);
+        $redirectUrls->setReturnUrl($this->returnUrl)
+            ->setCancelUrl($this->cancelUrl);
 
         // sistema de pagamento: "paypal"
         $payer = new \PayPal\Api\Payer;
@@ -125,27 +121,32 @@ class PaypalProcessor implements ProcessorContract
     }
 
 
-    public static function setClientId($key)
+    public function setClientId($key)
     {
-        self::$clientId = $key;
+        $this->clientId = $key;
+        return $this;
     }
 
-    public static function setClientSecret($key)
+    public function setClientSecret($key)
     {
-        self::$clientSecret = $key;
+        $this->clientSecret = $key;
+        return $this;
     }
 
-    public static function setTestMode($testMode)
+    public function setTestMode($testMode)
     {
-        self::$testMode = $testMode;
+        $this->testMode = $testMode;
+        return $this;
     }
 
-    public static function setReturnUrl($url)
+    public function setReturnUrl($url)
     {
-        self::$returnUrl = $url;
+        $this->returnUrl = $url;
+        return $this;
     }
-    public static function setCancelUrl($url)
+    public function setCancelUrl($url)
     {
-        self::$cancelUrl = $url;
+        $this->cancelUrl = $url;
+        return $this;
     }
 }

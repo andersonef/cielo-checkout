@@ -25,7 +25,7 @@ class Sample1
 {
     public static function main()
     {
-        $checkout = new CieloCheckout('edfd4486-6257-4152-8442-7f4786212c3d');
+        $checkout = new CieloCheckout();
 
         $checkout->setupInstallments([
             (new InstallmentRange())->setBetween(0, 200)->setMaxInstallments(2),
@@ -88,17 +88,22 @@ class Sample1
 
         //If you wanna save it in the database before generate the checkout url, the time is now.
 
-        PaypalProcessor::setTestMode(true);
-        PaypalProcessor::setCancelUrl('http://url.com');
-        PaypalProcessor::setReturnUrl('http://returnurl');
-        PaypalProcessor::setClientId('clientid');
-        PaypalProcessor::setClientSecret('client secret');
-        $checkout->setCurrentGateway(CieloCheckout::GATEWAY_PAYPAL);
+        $paypalProcessor = new PaypalProcessor();
+        $paypalProcessor->setTestMode(true);
+        $paypalProcessor->setCancelUrl('http://url.com');
+        $paypalProcessor->setReturnUrl('http://returnurl');
+        $paypalProcessor->setClientId('clientid');
+        $paypalProcessor->setClientSecret('client secret');
 
-        $checkoutUrl = $checkout->processCheckoutUrl();
-        die('url: ' . $checkoutUrl . ' - ' . $checkout->getOrder()->getSettings()->getCheckoutUrl());
+        //OR you could use:
+        $cieloProcessor = new CieloProcessor();
+        $cieloProcessor->setMerchantId('your-merchant-id-here');
+
+
+        $checkoutViaPaypal = $checkout->processCheckoutUrl($paypalProcessor);
+        $checkoutViaCielo = $checkout->processCheckoutUrl($cieloProcessor);
 
         //Update the information on the database right now
-        die('Location: ' . $checkoutUrl);
+        die('Location: ' . $checkoutViaPaypal);
     }
 }

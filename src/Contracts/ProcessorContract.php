@@ -13,6 +13,6 @@ use Girolando\CieloCheckout\Services\CieloCheckout;
 
 interface ProcessorContract
 {
-    public function __construct(CieloCheckout $checkout);
+    public function withCheckout(CieloCheckout $checkout);
     public function execute();
 }

@@ -14,20 +14,17 @@ use Girolando\CieloCheckout\Entities\Discount;
 use Girolando\CieloCheckout\Entities\Settings;
 use Girolando\CieloCheckout\Exceptions\CieloCheckoutException;
 use Girolando\CieloCheckout\Services\CieloCheckout;
+use Girolando\CieloCheckout\Traits\Processable;
 use GuzzleHttp\Client;
 
 class CieloProcessor implements ProcessorContract
 {
+    use Processable;
+
+
     const CIELO_ORDER_ENDPOINTURL   = 'https://cieloecommerce.cielo.com.br/api/public/v1/orders';
 
-    protected static $merchantId;
-
-    protected $checkout;
-
-    public function __construct(CieloCheckout $checkout)
-    {
-        $this->checkout = $checkout;
-    }
+    protected $merchantId;
 
     public function execute()
     {
@@ -54,7 +51,7 @@ class CieloProcessor implements ProcessorContract
             'headers'   => [
                 'Accept'        => $this->checkout->getOrder()->getContentType(),
                 'Content-Type'  => $this->checkout->getOrder()->getContentType(),
-                'MerchantId'    => self::$merchantId
+                'MerchantId'    => $this->merchantId
             ],
             'body'      => $this->checkout->getOrder()->toJson(),
             'verify'    => false
@@ -70,9 +67,10 @@ class CieloProcessor implements ProcessorContract
         return $this->checkout->getOrder()->getSettings()->getCheckoutUrl();
     }
 
-    public static function setMerchantId($merchantId)
+    public function setMerchantId($merchantId)
     {
-        self::$merchantId = $merchantId;
+        $this->merchantId = $merchantId;
+        return $this;
     }
 
 }
