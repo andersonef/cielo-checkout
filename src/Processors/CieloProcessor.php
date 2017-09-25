@@ -28,6 +28,7 @@ class CieloProcessor implements ProcessorContract
 
     public function execute()
     {
+        $this->checkout->getOrder()->setMerchantId($this->merchantId);
         //setting up the MaxInstallments:
         if(!$this->checkout->getOrder()->getPayment()->getMaxNumberOfInstallments()) {
             //I'll only do it if this property is not setted up.
